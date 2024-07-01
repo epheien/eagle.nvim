@@ -42,17 +42,8 @@ local lock_processing = false
 
 local renderDelayTimer = vim.loop.new_timer()
 
-function M.create_eagle_win()
-  -- return if the mouse has moved exactly before the eagle window was to be created
-  -- this can happen when the value of config.options.render_delay is very low
-  local mouse_pos = vim.fn.getmousepos()
-  if not vim.deep_equal(mouse_pos, last_mouse_pos) then
-    win_lock = 0
-    return
-  end
-
+local function get_diagnostic_content()
   local messages = {}
-
   if #diagnostic_messages > 0 then
     table.insert(messages, "# Diagnostics")
     table.insert(messages, "")
@@ -102,7 +93,11 @@ function M.create_eagle_win()
       table.insert(messages, "")
     end
   end
+  return messages
+end
 
+local function get_lsp_info_content()
+  local messages = {}
   if config.options.show_lsp_info and #lsp_info > 0 then
     if #diagnostic_messages > 0 then
       table.insert(messages, "---")
@@ -113,6 +108,25 @@ function M.create_eagle_win()
       table.insert(messages, md_line)
     end
   end
+  return messages
+end
+
+function M.create_eagle_win()
+  -- return if the mouse has moved exactly before the eagle window was to be created
+  -- this can happen when the value of config.options.render_delay is very low
+  local mouse_pos = vim.fn.getmousepos()
+  if not vim.deep_equal(mouse_pos, last_mouse_pos) then
+    win_lock = 0
+    return
+  end
+
+  local messages = {}
+
+  local diagnostic_content = get_diagnostic_content()
+  local lsp_info_content = get_lsp_info_content()
+
+  messages = vim.list_extend(messages, diagnostic_content)
+  messages = vim.list_extend(messages, lsp_info_content)
 
   -- create a buffer with buflisted = false and scratch = true
   if eagle_buf then
