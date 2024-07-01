@@ -122,11 +122,15 @@ function M.create_eagle_win()
 
   local messages = {}
 
-  local diagnostic_content = get_diagnostic_content()
-  local lsp_info_content = get_lsp_info_content()
-
-  messages = vim.list_extend(messages, diagnostic_content)
-  messages = vim.list_extend(messages, lsp_info_content)
+  if config.options.callback then
+    local user_content = config.options.callback()
+    messages = vim.list_extend(messages, user_content)
+  else
+    local diagnostic_content = get_diagnostic_content()
+    local lsp_info_content = get_lsp_info_content()
+    messages = vim.list_extend(messages, diagnostic_content)
+    messages = vim.list_extend(messages, lsp_info_content)
+  end
 
   -- create a buffer with buflisted = false and scratch = true
   if eagle_buf then
@@ -388,6 +392,16 @@ local function render()
 
   last_mouse_pos = vim.fn.getmousepos()
   renderDelayTimer:start(config.options.render_delay, 0, vim.schedule_wrap(function()
+    -- 避免重复打开弹窗, 每次打开弹窗都要在 <MouseMove> 事件触发关闭之后
+    if config.options.callback then
+      if win_lock ~= 0 then
+        return
+      end
+      win_lock = 1
+      M.create_eagle_win()
+      return
+    end
+
     -- if the window is open, we need to check if there are new diagnostics on the same line
     -- this is done with the highest priority, once the mouse goes idle
     if M.load_diagnostics() then

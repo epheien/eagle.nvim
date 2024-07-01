@@ -67,6 +67,9 @@ local defaults = {
   -- window border highlight group
   border_group = "FloatBorder",
 
+  -- custom hover callback
+  callback = nil,
+
   focus_eagle_window_by_mouse = false,
 }
 
