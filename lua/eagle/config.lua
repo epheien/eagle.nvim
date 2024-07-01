@@ -59,11 +59,13 @@ local defaults = {
   --can be "left", "center" or "right"
   title_pos = "center",
 
-  -- window title color
-  title_color = "#8AAAE5",
+  -- window title highlight group
+  title_group = "Title",
 
-  -- window border color
-  border_color = "#8AAAE5",
+  normal_group = 'NormalFloat',
+
+  -- window border highlight group
+  border_group = "FloatBorder",
 }
 
 M.options = {}

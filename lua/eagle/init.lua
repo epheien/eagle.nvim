@@ -156,11 +156,8 @@ function M.create_eagle_win()
     row_pos = mouse_pos.screenrow
   end
 
-  vim.api.nvim_set_hl(0, 'TitleColor', { fg = config.options.title_color })
-  vim.api.nvim_set_hl(0, 'FloatBorder', { fg = config.options.border_color })
-
   eagle_win = vim.api.nvim_open_win(eagle_buf, false, {
-    title = { { config.options.title, "TitleColor" } },
+    title = { { config.options.title, config.options.title_group } },
     title_pos = config.options.title_pos,
     relative = 'editor',
     row = row_pos - config.options.window_row,
@@ -171,6 +168,8 @@ function M.create_eagle_win()
     border = config.options.border,
     focusable = true,
   })
+  vim.fn.setwinvar(eagle_win, '&winhighlight',
+    vim.fn.printf('Normal:%s,FloatBorder:%s', config.options.normal_group, config.options.border_group))
 end
 
 -- format the lines of eagle_buf, in order to fit vim.o.columns / config.options.max_width_factor
