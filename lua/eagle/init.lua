@@ -604,16 +604,6 @@ append_keymap("n", "<MouseMove>", function(preceding)
   end)
 end, { silent = true, expr = true })
 
--- in the future, I may need to bind this to CmdlineEnter and/or CmdWinEnter, instead of setting a keymap
-append_keymap({ "n", "v" }, ":", function(preceding)
-  preceding()
-
-  if eagle_win and vim.api.nvim_win_is_valid(eagle_win) and vim.api.nvim_get_current_win() == eagle_win and config.options.close_on_cmd then
-    vim.api.nvim_win_close(eagle_win, false)
-    win_lock = 0
-  end
-end, { silent = true })
-
 -- detect changes in Neovim modes (close the eagle window when leaving normal mode)
 vim.api.nvim_create_autocmd("ModeChanged", {
   callback = function()
@@ -623,6 +613,18 @@ vim.api.nvim_create_autocmd("ModeChanged", {
     -- whenever he enters normal mode (assuming the mouse is on code with diagnostics and/or lsp info).
     if vim.fn.mode() ~= "n" then
       M.process_mouse_pos()
+    end
+  end
+})
+
+vim.api.nvim_create_autocmd({'CmdlineEnter', 'CmdWinEnter'}, {
+  callback = function()
+    if not config.options.close_on_cmd then
+      return
+    end
+    if eagle_win and vim.api.nvim_win_is_valid(eagle_win) and vim.api.nvim_get_current_win() ~= eagle_win then
+      vim.api.nvim_win_close(eagle_win, false)
+      win_lock = 0
     end
   end
 })
