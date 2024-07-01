@@ -498,9 +498,11 @@ function M.manage_windows()
 
   -- if the mouse pointer is inside the eagle window and it's not already in focus, set it as the focused window
   if isMouseWithinWestSide and isMouseWithinEastSide and isMouseWithinNorthSide and isMouseWithinSouthSide then
-    if vim.api.nvim_get_current_win() ~= eagle_win then
-      vim.api.nvim_set_current_win(eagle_win)
-      vim.api.nvim_win_set_cursor(eagle_win, { 1, 0 })
+    if config.options.focus_eagle_window_by_mouse then
+      if vim.api.nvim_get_current_win() ~= eagle_win then
+        vim.api.nvim_set_current_win(eagle_win)
+        vim.api.nvim_win_set_cursor(eagle_win, { 1, 0 })
+      end
     end
   else
     if eagle_win and vim.api.nvim_win_is_valid(eagle_win) and vim.fn.mode() == "n" then

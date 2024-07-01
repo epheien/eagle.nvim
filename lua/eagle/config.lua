@@ -66,6 +66,8 @@ local defaults = {
 
   -- window border highlight group
   border_group = "FloatBorder",
+
+  focus_eagle_window_by_mouse = false,
 }
 
 M.options = {}
