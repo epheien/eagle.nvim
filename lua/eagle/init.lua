@@ -124,6 +124,9 @@ function M.create_eagle_win()
 
   if config.options.callback then
     local user_content = config.options.callback()
+    if not user_content or #user_content == 0 then
+      return
+    end
     messages = vim.list_extend(messages, user_content)
   else
     local diagnostic_content = get_diagnostic_content()
@@ -466,7 +469,12 @@ end
 
 function M.process_mouse_pos()
   -- return if not in normal mode or if the mouse is not hovering over actual code
-  if vim.fn.mode() ~= 'n' or not M.is_mouse_on_code() then
+  local stop = vim.fn.mode() ~= 'n'
+  if not config.options.callback then
+    --if vim.fn.mode() ~= 'n' or not M.is_mouse_on_code() then
+    stop = stop or not M.is_mouse_on_code()
+  end
+  if stop then
     renderDelayTimer:stop()
     if eagle_win and vim.api.nvim_win_is_valid(eagle_win) and vim.api.nvim_get_current_win() ~= eagle_win then
       M.manage_windows()
@@ -534,9 +542,14 @@ function M.manage_windows()
     end
   else
     if eagle_win and vim.api.nvim_win_is_valid(eagle_win) and vim.fn.mode() == "n" then
-      -- close the window if the mouse is over or comes from a special character
-      if not M.check_char(mouse_pos) and vim.api.nvim_get_current_win() ~= eagle_win then -- and (last_mouse_line ~= mouse_pos.line) then
-        return
+      if config.options.callback then
+        -- TODO
+      else
+        -- close the window if the mouse is over or comes from a special character
+        -- and (last_mouse_line ~= mouse_pos.line) then
+        if not M.check_char(mouse_pos) and vim.api.nvim_get_current_win() ~= eagle_win then
+          return
+        end
       end
     end
     vim.api.nvim_win_close(eagle_win, false)
